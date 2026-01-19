@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ang Maladiyosang Proporsyon: Phi (φ)</title>
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(212, 175, 55, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 1px;
+            color: var(--gold);
+        }
+
+        /* --- Hero Section --- */
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(circle at center, #1e293b 0%, var(--dark) 100%);
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 2s ease-out;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            animation: slideUp 2s ease-out;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            animation: bounce 2s infinite;
+            font-size: 2rem;
+            color: var(--gold);
+        }
+
+        /* --- Content Sections --- */
+        section {
+            padding: 80px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 2.5rem; }
+        }
+
+        /* --- Canvas Container --- */
+        .canvas-container {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* --- Derivation Interactive Specifics --- */
+        .derivation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .step-panel {
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--gold);
+            margin-top: 20px;
+            min-height: 150px;
+        }
+        
+        .step-title {
+            color: var(--gold);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .step-math {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+
+        /* --- The Math Section --- */
+        .math-display {
+            font-size: 1.5rem;
+            font-family: 'Times New Roman', serif;
+            color: var(--gold);
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        /* --- Calculator --- */
+        .calc-box {
+            background: var(--glass);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+        }
+
+        input {
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid var(--gold);
+            background: transparent;
+            color: var(--light);
+            border-radius: 5px;
+            margin: 10px;
+            width: 150px;
+            text-align: center;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: var(--gold);
+            color: var(--dark);
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 4px;
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        button:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.reset {
+            background-color: #ef4444; /* Red reset button */
+            color: white;
+        }
+
+        /* --- Showcase Section --- */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .showcase-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Ang Maladiyosang Proporsyon</h1>
+        <p>Ginintuang Parisukat at Maladiyosang Proporsyon ni Caridad M. Natividad</p>
+        <p style="font-size: 1rem; margin-top: 10px; color: var(--gold);">Phi (φ) &approx; 1.6180339...</p>
+        <div class="scroll-indicator">↓</div>
+    </header>
+
+    <!-- <section id="introduction">
+        <div class="grid">
+            <div>
+                <h2>Bakit Umiiyak o Tumatawa ang Sanggol?</h2>
+                <p>Naranasan na ba ninyong pagmasdan na sa isang tingin pa lamang ng bata sa tao, biglang iyak ito o 'di kaya'y biglang tuwa?</p>
+                <br>
+                <p>Sabi ng mga Griyego, ito ay dahil sa <strong>"Maladiyosang Proporsyon"</strong> ng mukha ng tao. Natutuwa ang bata kapag naabot ang proporsyon, at humahagulgol naman kapag may kakulangan sa sukat.</p>
+            </div>
+            <div class="math-display" style="font-size: 1.2rem;">
+                "Ang maladiyosang proporsyon ay ang ratio ng length sa width na isang katangi-tanging parihaba."
+            </div>
+        </div>
+    </section> -->
+
+    <section id="math-basics">
+        <h2>Ang Heometriya at Pythagorean Theorem</h2>
+        <p>Mahalaga sa mga Griyego ang heometriya (Geometry). Marami silang pormulang nadiskubre, isa na rito ang Pythagorean Theorem na gagamitin natin sa paggawa ng Ginintuang Parihaba.</p>
+        
+        <div class="math-display">
+            $$c = \sqrt{a^2 + b^2}$$
+        </div>
+        
+        <p>Halimbawa: Ang <strong>Egyptian Triangle</strong> ay may sides na 3, 4, at 5. ($3^2 + 4^2 = 5^2$ o $9 + 16 = 25$).</p>
+    </section>
+
+    <section id="derivation">
+        <h2>Paggawa ng Ginintuang Parihaba</h2>
+        <p>Paano ba ang paggawa ng ginintuang parihabang ito? Sundan ang mga hakbang sa ibaba.</p>
+        <br>
+        
+        <div class="canvas-container">
+            <canvas id="geoCanvas" width="600" height="400"></canvas>
+        </div>
+        
+        <div class="derivation-controls">
+            <button id="btnPrev" onclick="changeStep(-1)">&#8592; Nakaraan</button>
+            <button id="btnNext" onclick="changeStep(1)">Susunod &#8594;</button>
+            <button id="btnReset" class="reset" onclick="resetGeo()">Ulitin</button>
+        </div>
+
+        <div class="step-panel" id="stepInfo">
+            </div>
+    </section>
+
+    <section id="computation">
+        <h2>Ang Kompyutasyon</h2>
+        <p>Gamit ang Pythagorean Theorem sa tatsulok na nabuo (Triangle MBC), nakuha natin ang sukat ng hypotenuse na MC.</p>
+        <div class="math-display">
+            $$MC = \sqrt{(\frac{1}{2})^2 + 1^2} = \frac{\sqrt{5}}{2}$$
+        </div>
+        <p>Kaya ang kabuuang haba (AE) ng Ginintuang Parihaba ay:</p>
+        <div class="math-display">
+            $$AE = \frac{1}{2} + \frac{\sqrt{5}}{2} = \frac{1 + \sqrt{5}}{2} \approx 1.6180339$$
+        </div>
+    </section>
+
+    <section id="visualizer">
+        <h2>Ang Golden Spiral</h2>
+        <p>Panoorin kung paano bumubuo ng perpektong spiral ang mga parisukat na nakabase sa Fibonacci sequence.</p>
+        <br>
+        <div class="canvas-container">
+            <canvas id="spiralCanvas" width="600" height="400"></canvas>
+        </div>
+        <div style="text-align: center; margin-top: 15px;">
+            <button onclick="resetSpiral()">Ulitin ang Animasyon</button>
+        </div>
+    </section>
+
+    <section id="showcase">
+        <h2>Ang Maladiyosang Proporsyon sa Paligid</h2>
+        <p>Hindi lamang ito numero; ito ay makikita sa kalikasan, sining, at arkitektura.</p>
+        
+        <div class="showcase-grid">
+            <div class="showcase-card">
+                <div class="card-icon">🐚</div>
+                <h3>Kalikasan</h3>
+                <p><strong>Nautilus Shell at mga Bulaklak</strong></p>
+                <p style="font-size:0.9rem; opacity:0.7;">Gumagamit ang kalikasan ng Golden Spiral para sa episyenteng paglaki. Mula sa ayos ng buto ng sunflower hanggang sa kurba ng shell.</p>
+            </div>
+
+            <div class="showcase-card">
+                <div class="card-icon">🏛️</div>
+                <h3>Arkitektura</h3>
+                <p><strong>Ang Parthenon</strong></p>
+                <p style="font-size:0.9rem; opacity:0.7;">Ginamit ng mga sinaunang Griyego ang Ginintuang Parihaba upang lumikha ng mga istrukturang balanse at kaaya-aya sa mata.</p>
+            </div>
+
+            <div class="showcase-card">
+                <div class="card-icon">🎨</div>
+                <h3>Sining</h3>
+                <p><strong>Ang Mona Lisa</strong></p>
+                <p style="font-size:0.9rem; opacity:0.7;">Ginamit nina Da Vinci at iba pang alagad ng sining ang proporsyon upang imapa ang mukha at komposisyon ng kanilang mga obra.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="calculator">
+        <h2>Golden Calculator</h2>
+        <p>Ilagay ang sukat ng isang side upang makuha ang katumbas na "Golden" side.</p>
+        <br>
+        <div class="calc-box">
+            <div>
+                <label>Maikling Gilid (Width)</label><br>
+                <input type="number" id="inputA" placeholder="100" oninput="calculateB()">
+            </div>
+            <div style="font-size: 2rem; color: var(--gold); margin: 10px;">× 1.618 =</div>
+            <div>
+                <label>Mahabang Gilid (Length)</label><br>
+                <input type="number" id="inputB" readonly>
+            </div>
+            <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7;">
+                Kabuuang Haba: <span id="totalLength">0</span>
+            </div>
+        </div>
+    </section>
+
+    <footer style="text-align: center; padding: 40px; color: rgba(255,255,255,0.3);">
+        <p>Halaw sa Filipino 5 PSHS-Learning Resource Package</p>
+    </footer>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        // ==========================================
+        // 1. CALCULATOR LOGIC
+        // ==========================================
+        function calculateB() {
+            const a = parseFloat(document.getElementById('inputA').value);
+            if (!isNaN(a)) {
+                const b = a * 1.61803398875;
+                document.getElementById('inputB').value = b.toFixed(2);
+                document.getElementById('totalLength').innerText = (a + b).toFixed(2);
+            } else {
+                document.getElementById('inputB').value = '';
+                document.getElementById('totalLength').innerText = '0';
+            }
+        }
+
+        // ==========================================
+        // 2. GEOMETRIC DERIVATION (Interactive)
+        // ==========================================
+        const geoCanvas = document.getElementById('geoCanvas');
+        const ctxGeo = geoCanvas.getContext('2d');
+        const stepInfo = document.getElementById('stepInfo');
+        
+        let currentStep = 0;
+        const totalSteps = 5;
+        
+        // Geometry Constants
+        const geoScale = 150; 
+        const offsetX = 100;
+        const offsetY = 300; 
+        
+        const pA = { x: offsetX, y: offsetY };
+        const pB = { x: offsetX + geoScale, y: offsetY };
+        const pC = { x: offsetX + geoScale, y: offsetY - geoScale };
+        const pD = { x: offsetX, y: offsetY - geoScale };
+        const pM = { x: offsetX + (geoScale / 2), y: offsetY };
+        const distMC = Math.sqrt(Math.pow(geoScale/2, 2) + Math.pow(geoScale, 2));
+        const pE = { x: pM.x + distMC, y: offsetY };
+        const pF = { x: pE.x, y: pD.y };
+
+        let arcProgress = 0;
+
+        function drawGeoLine(p1, p2, color = '#fff', width = 2, dashed = false) {
+            ctxGeo.beginPath();
+            ctxGeo.moveTo(p1.x, p1.y);
+            ctxGeo.lineTo(p2.x, p2.y);
+            ctxGeo.strokeStyle = color;
+            ctxGeo.lineWidth = width;
+            if (dashed) ctxGeo.setLineDash([5, 5]);
+            else ctxGeo.setLineDash([]);
+            ctxGeo.stroke();
+        }
+
+        function drawGeoPoint(p, label) {
+            ctxGeo.beginPath();
+            ctxGeo.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctxGeo.fillStyle = '#D4AF37'; // Gold points
+            ctxGeo.fill();
+            
+            if (label) {
+                ctxGeo.fillStyle = '#fff';
+                ctxGeo.font = 'bold 16px Arial';
+                ctxGeo.fillText(label, p.x - 10, p.y + 25);
+            }
+        }
+
+        function drawGeoLabel(text, x, y, color = '#aaa') {
+            ctxGeo.fillStyle = color;
+            ctxGeo.font = '14px Arial';
+            ctxGeo.fillText(text, x, y);
+        }
+
+        function renderGeo() {
+            ctxGeo.clearRect(0, 0, geoCanvas.width, geoCanvas.height);
+            
+            // Grid line
+            ctxGeo.beginPath();
+            ctxGeo.moveTo(50, offsetY);
+            ctxGeo.lineTo(550, offsetY);
+            ctxGeo.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctxGeo.lineWidth = 1;
+            ctxGeo.setLineDash([]);
+            ctxGeo.stroke();
+
+            if (currentStep >= 1) {
+                ctxGeo.beginPath();
+                ctxGeo.rect(pD.x, pD.y, geoScale, geoScale);
+                ctxGeo.strokeStyle = '#fff';
+                ctxGeo.lineWidth = 2;
+                ctxGeo.stroke();
+                
+                ctxGeo.fillStyle = 'rgba(255, 255, 255, 0.05)';
+                ctxGeo.fill();
+
+                drawGeoLabel('A', pA.x - 15, pA.y + 15);
+                drawGeoLabel('B', pB.x - 5, pB.y + 20);
+                drawGeoLabel('C', pC.x + 10, pC.y - 10);
+                drawGeoLabel('D', pD.x - 15, pD.y - 5);
+                drawGeoLabel('1', pA.x - 20, pA.y - geoScale/2); 
+            }
+
+            if (currentStep >= 2) {
+                drawGeoPoint(pM, 'M');
+                drawGeoLine({x: pM.x, y: pM.y}, {x: pM.x, y: pM.y - geoScale}, '#666', 1, true);
+                drawGeoLabel('0.5', pA.x + geoScale/4, pA.y + 20, '#aaa');
+            }
+
+            if (currentStep >= 3) {
+                drawGeoLine(pM, pC, '#ef4444', 2); // Red diagonal
+            }
+
+            if (currentStep >= 4) {
+                const radius = distMC;
+                const startAngle = -Math.atan2(geoScale, geoScale/2); 
+                const endAngle = 0; 
+                
+                ctxGeo.beginPath();
+                let currentEnd = (currentStep === 4 && arcProgress < 1) 
+                    ? startAngle + (Math.abs(startAngle) * arcProgress) 
+                    : 0;
+
+                ctxGeo.arc(pM.x, pM.y, radius, startAngle, currentEnd, false);
+                ctxGeo.strokeStyle = '#D4AF37';
+                ctxGeo.setLineDash([5, 5]);
+                ctxGeo.lineWidth = 2;
+                ctxGeo.stroke();
+            }
+
+            if (currentStep === 5) {
+                drawGeoPoint(pE, 'E');
+                drawGeoPoint(pF, 'F');
+                
+                ctxGeo.beginPath();
+                ctxGeo.moveTo(pB.x, pB.y);
+                ctxGeo.lineTo(pE.x, pE.y);
+                ctxGeo.lineTo(pF.x, pF.y); 
+                ctxGeo.lineTo(pC.x, pC.y); 
+                ctxGeo.strokeStyle = '#D4AF37';
+                ctxGeo.lineWidth = 3;
+                ctxGeo.setLineDash([]);
+                ctxGeo.stroke();
+
+                ctxGeo.fillStyle = 'rgba(212, 175, 55, 0.2)';
+                ctxGeo.fillRect(pA.x, pF.y, pE.x - pA.x, geoScale);
+                
+                drawGeoLabel('Total = \u03D5 (1.618...)', pA.x + geoScale, pA.y + 45, '#D4AF37');
+            }
+        }
+
+        function updateGeoText() {
+            let html = '';
+
+            // Content based on the Filipino screenshots provided
+            switch(currentStep) {
+                case 0:
+                    html = `
+                        <div class="step-title">Panimula</div>
+                        <h2>Konstruksyon</h2>
+                        <p>Dito natin gagamitin ang Pythagorean Theorem para makuha ang tamang proporsyon. Handa ka na ba?</p>
+                    `;
+                    break;
+                case 1:
+                    html = `
+                        <div class="step-title">Hakbang 1</div>
+                        <h2>Ang Parisukat (Square)</h2>
+                        <p>Magdrowing ng isang parisukat (square) ABCD na may sukat na 1.</p>
+                        <div class="step-math">Side = 1</div>
+                    `;
+                    break;
+                case 2:
+                    html = `
+                        <div class="step-title">Hakbang 2</div>
+                        <h2>Ang Midpoint</h2>
+                        <p>Kunin ang gitna ng AB at tawagin itong M. Ang sukat mula A hanggang M ay 1/2.</p>
+                        <div class="step-math">AM = MB = 0.5</div>
+                    `;
+                    break;
+                case 3:
+                    html = `
+                        <div class="step-title">Hakbang 3</div>
+                        <h2>Ang Radius</h2>
+                        <p>Ikonekta ang M sa C. Ito ang magiging hypotenuse ng ating triangle. Ang sukat nito ay makukuha gamit ang Pythagorean Theorem ($MC^2 = MB^2 + CB^2$).</p>
+                    `;
+                    break;
+                case 4:
+                    html = `
+                        <div class="step-title">Hakbang 4</div>
+                        <h2>Ang Bilog at Intersection</h2>
+                        <p>Gumuhit ng bilog (arc) na sentro sa M at radius na MC. Pahabain ang AB hanggang makatagpo nito (ma-intersect) ang bilog sa puntong E.</p>
+                        <div class="step-math">MC = ME</div>
+                    `;
+                    break;
+                case 5:
+                    html = `
+                        <div class="step-title">Hakbang 5</div>
+                        <h2>Ang Ginintuang Parihaba</h2>
+                        <p>Kumpletuhin ang parihabang ABCD upang mabuo ang parihabang DCFAE. Ito ang Ginintuang Parihaba.</p>
+                        <div class="step-math">Length (AE) = 1.6180339...</div>
+                    `;
+                    break;
+            }
+            stepInfo.innerHTML = html;
+            document.getElementById('btnPrev').disabled = currentStep === 0;
+            document.getElementById('btnNext').disabled = currentStep === totalSteps;
+        }
+
+        function changeStep(delta) {
+            const next = currentStep + delta;
+            if (next >= 0 && next <= totalSteps) {
+                currentStep = next;
+                if (currentStep === 4 && delta > 0) animateGeoArc();
+                else {
+                    arcProgress = 0;
+                    renderGeo();
+                }
+                updateGeoText();
+            }
+        }
+
+        function resetGeo() {
+            currentStep = 0;
+            arcProgress = 0;
+            updateGeoText();
+            renderGeo();
+        }
+
+        function animateGeoArc() {
+            arcProgress = 0;
+            function loop() {
+                arcProgress += 0.02;
+                renderGeo();
+                if (arcProgress < 1) requestAnimationFrame(loop);
+                else { arcProgress = 1; renderGeo(); }
+            }
+            loop();
+        }
+
+        // ==========================================
+        // 3. SPIRAL ANIMATION
+        // ==========================================
+        const spiralCanvas = document.getElementById('spiralCanvas');
+        const ctxSpiral = spiralCanvas.getContext('2d');
+        const fib = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
+        const spiralScale = 3.5;
+        
+        function resetSpiral() {
+            ctxSpiral.clearRect(0,0, spiralCanvas.width, spiralCanvas.height);
+            drawSpiral();
+        }
+
+        function drawSpiral() {
+            let i = 0;
+            let currX = 350, currY = 250; 
+            
+            function drawNextSquare() {
+                if (i >= fib.length) return;
+                
+                let num = fib[i];
+                let sz = num * spiralScale;
+                let rx, ry, sAngle, eAngle;
+                
+                ctxSpiral.strokeStyle = "rgba(255, 255, 255, 0.4)";
+                ctxSpiral.fillStyle = "rgba(212, 175, 55, 0.1)";
+                ctxSpiral.lineWidth = 1;
+
+                switch(i % 4) {
+                    case 0: // Right
+                        rx = currX; ry = currY - sz;
+                        ctxSpiral.fillRect(rx, ry, sz, sz);
+                        ctxSpiral.strokeRect(rx, ry, sz, sz);
+                        animateSpiralArc(currX, currY, sz, Math.PI/2, 0);
+                        currX += sz;
+                        break;
+                    case 1: // Up
+                        rx = currX; ry = currY - sz;
+                        ctxSpiral.fillRect(rx, ry, sz, sz);
+                        ctxSpiral.strokeRect(rx, ry, sz, sz);
+                        animateSpiralArc(currX, currY, sz, 0, -Math.PI/2);
+                        currY -= sz;
+                        break;
+                    case 2: // Left
+                        rx = currX - sz; ry = currY;
+                        ctxSpiral.fillRect(rx, ry, sz, sz);
+                        ctxSpiral.strokeRect(rx, ry, sz, sz);
+                        animateSpiralArc(currX, currY, sz, -Math.PI/2, -Math.PI);
+                        currX -= sz;
+                        break;
+                    case 3: // Down
+                        rx = currX - sz; ry = currY;
+                        ctxSpiral.fillRect(rx, ry, sz, sz);
+                        ctxSpiral.strokeRect(rx, ry, sz, sz);
+                        animateSpiralArc(currX, currY, sz, -Math.PI, -1.5*Math.PI);
+                        currY += sz;
+                        break;
+                }
+                
+                i++;
+                setTimeout(drawNextSquare, 400); 
+            }
+            drawNextSquare();
+        }
+
+        function animateSpiralArc(cx, cy, r, start, end) {
+            ctxSpiral.beginPath();
+            ctxSpiral.strokeStyle = "#D4AF37";
+            ctxSpiral.lineWidth = 3;
+            ctxSpiral.arc(cx, cy, r, start, end, true); 
+            ctxSpiral.stroke();
+        }
+
+        // Initialize things on load
+        window.onload = function() {
+            resetGeo();   
+            drawSpiral(); 
+        }
+
+    </script>
+</body>
+</html>
